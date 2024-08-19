@@ -3,6 +3,7 @@
 uniform sampler2D colortex0; // 颜色纹理
 uniform sampler2D colortex1; // 光照数据
 uniform sampler2D colortex2; // 法线数据
+uniform sampler2D depthtex0; // 深度纹理
 uniform vec3 shadowLightPosition; // 太阳光照位置，白天返回太阳位置，晚上返回月亮位置
 uniform mat4 gbufferModelViewInverse; // 视图矩阵逆矩阵，用于将视图空间转换到世界空间
 
@@ -14,7 +15,7 @@ in vec2 texcoord; // 纹理坐标
 /* DRAWBUFFERS: 0 */
 layout(location = 0) out vec4 color;
 
-// 一些假的光照颜色
+// 一些光照颜色
 const vec3 torchColor = vec3(1.0, 0.5, 0.08); // 火把光照颜色
 const vec3 skyColor = vec3(0.05, 0.15, 0.3); // 天空光照颜色
 const vec3 sunlightColor = vec3(1.0); // 太阳光照颜色
@@ -43,6 +44,13 @@ void main(){
     vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector; // 将光照方向从视图空间转换到世界空间
     // 太阳光照方向与法线的点积可以得到太阳光照的强度
     vec3 sunlight = sunlightColor * dot(worldLightVector, normal) * lightmap.g;
+
+    float depth = texture(depthtex0, texcoord).r; // 获取深度值
+    if(depth == 1.0){
+        // 如果像素位于最大视距，深度缓冲区将存储 1.0
+        // 这意味着像素位于最大视距，因此我们可以假设它是天空
+        return; // 不应用光照
+    }
 
     // 应用光照
     color.rgb *= blocklight + skylight + ambient + sunlight;
