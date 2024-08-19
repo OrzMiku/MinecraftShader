@@ -3,6 +3,8 @@
 uniform sampler2D colortex0; // 颜色纹理
 uniform sampler2D colortex1; // 光照数据
 uniform sampler2D colortex2; // 法线数据
+uniform vec3 shadowLightPosition; // 太阳光照位置，白天返回太阳位置，晚上返回月亮位置
+uniform mat4 gbufferModelViewInverse; // 视图矩阵逆矩阵，用于将视图空间转换到世界空间
 
 in vec2 texcoord; // 纹理坐标
 
@@ -35,7 +37,12 @@ void main(){
     vec3 blocklight = lightmap.r * torchColor;
     vec3 skylight = lightmap.g * skyColor;
     vec3 ambient = ambientColor;
-    vec3 sunlight = sunlightColor; // TODO：计算太阳光照
+
+    // 计算太阳光照
+    vec3 lightVector = normalize(shadowLightPosition); // 光照方向
+    vec3 worldLightVector = mat3(gbufferModelViewInverse) * lightVector; // 将光照方向从视图空间转换到世界空间
+    // 太阳光照方向与法线的点积可以得到太阳光照的强度
+    vec3 sunlight = sunlightColor * dot(worldLightVector, normal) * lightmap.g;
 
     // 应用光照
     color.rgb *= blocklight + skylight + ambient + sunlight;
