@@ -14,7 +14,7 @@ void main(){
     // 光照贴图的实际范围存储在gl_MultiTexCoord1中，乘以gl_TextureMatrix[1]得到实际的纹理坐标
     lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     // 范围为~0.003-~0.997，因此需要映射到0-1
-    lmcoord = (lmcoord * 33.05 / 32.0) - (1.05 / 32.0);\
+    lmcoord = (lmcoord * 33.05 / 32.0) - (1.05 / 32.0);
 
     // gl_Normal 存储了模型空间中的法线，乘以gl_NormalMatrix得到玩家空间中的法线
     normal = gl_Normal * gl_NormalMatrix;
