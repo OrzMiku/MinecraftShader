@@ -1,4 +1,5 @@
 #version 330 compatibility
+#include "/lib/distort.glsl"
 
 uniform sampler2D colortex0; // 颜色纹理
 uniform sampler2D colortex1; // 光照数据
@@ -62,7 +63,10 @@ void main(){
     vec3 viewPos = projectAndDivide(gbufferProjectionInverse, NDCPos);
     vec3 feetPlayerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
     vec3 shadowViewPos = (shadowModelView * vec4(feetPlayerPos, 1.0)).xyz;
-    vec3 shadowNDCPos = projectAndDivide(shadowProjection, shadowViewPos);
+    vec4 shadowClipPos = shadowProjection * vec4(shadowViewPos, 1.0);
+    shadowClipPos.z -= 0.0001;
+    shadowClipPos.xyz = distortShadowClipPos(shadowClipPos.xyz);
+    vec3 shadowNDCPos = shadowClipPos.xyz / shadowClipPos.w;
     vec3 shadowScreenPos = shadowNDCPos * 0.5 + 0.5;
     // 阴影采样
     float shadow = step(shadowScreenPos.z - 0.0001, texture(shadowtex0, shadowScreenPos.xy).r);

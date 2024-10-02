@@ -1,4 +1,6 @@
-# MinecraftShader
+# MinecraftShader_0
+
+## 已弃坑
 
 用于记录MC着色器学习，非专业，仅供参考。
 
